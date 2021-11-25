@@ -18,8 +18,8 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
     }
@@ -41,7 +41,9 @@ android {
 }
 
 dependencies {
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
+    api("io.coil-kt:coil-compose:1.4.0")
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("com.google.android.material:material:1.4.0")
@@ -49,7 +51,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 
-    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.0-rc01")
     implementation("androidx.compose.ui:ui:1.1.0-beta03")
     // Tooling support (Previews, etc.)
     implementation("androidx.compose.ui:ui-tooling:1.1.0-beta03")
