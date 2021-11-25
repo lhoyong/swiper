@@ -15,8 +15,50 @@
  */
 package com.github.lhoyong.beautiful.swipe
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 
 @Composable
-fun BeautifulSwipe() {
+fun BeautifulSwipe(
+    items: List<SwipeItem>
+) {
+    Box {
+        items.forEach { item ->
+            BeautifulSwipeItem(item = item)
+        }
+    }
+}
+
+@Composable
+fun BeautifulSwipeItem(
+    width: Dp = 150.dp,
+    height: Dp = 200.dp,
+    corner: Dp = 12.dp,
+    elevation: Dp = 4.dp,
+    padding: Dp = 10.dp,
+    item: SwipeItem
+) {
+    Card(
+        modifier = Modifier
+            .size(width = width, height = height)
+            .padding(padding),
+        shape = RoundedCornerShape(corner),
+        elevation = elevation
+    ) {
+        Image(
+            painter = rememberImagePainter(item.imageUrl),
+            contentDescription = "",
+            contentScale = ContentScale.Crop
+        )
+    }
 }

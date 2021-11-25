@@ -22,15 +22,20 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import com.github.lhoyong.beautiful.sample.ui.theme.BeautifulTheme
 import com.github.lhoyong.beautiful.swipe.BeautifulSwipe
+import com.github.lhoyong.beautiful.swipe.SwipeItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val items = listOf(
+            SwipeItem(imageUrl = "https://www.collinsdictionary.com/images/full/apple_158989157.jpg"),
+            SwipeItem(imageUrl = "https://www.cookingclassy.com/wp-content/uploads/2020/04/bread-recipe-1.jpg")
+        )
         setContent {
             BeautifulTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    BeautifulSwipe()
+                    BeautifulSwipe(items)
                 }
             }
         }
