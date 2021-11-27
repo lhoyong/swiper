@@ -27,3 +27,17 @@ internal fun Modifier.drag(onDrag: (change: PointerInputChange, dragAmount: Offs
             onDrag(change, dragAmount)
         }
     }
+
+internal fun normalize(
+    min: Float,
+    max: Float,
+    v: Float,
+    startRange: Float = 0f,
+    endRange: Float = 1f
+): Float {
+    require(startRange < endRange) {
+        "Start range is greater than End range"
+    }
+    val value = v.coerceIn(min, max)
+    return (value - min) / (max - min) * (endRange - startRange) + startRange
+}
