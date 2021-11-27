@@ -22,19 +22,35 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import kotlin.math.roundToInt
 
 @Composable
 fun BeautifulSwipe(
     items: List<SwipeItem>
 ) {
-    Box {
+    var offset: Offset by remember { mutableStateOf(Offset(0f, 0f)) }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.drag { _, dragAmount ->
+            val x = offset.x + dragAmount.x
+            val y = offset.y + dragAmount.y
+            offset = Offset(x, y)
+        }
+    ) {
         items.forEach { item ->
-            BeautifulSwipeItem(item = item)
+            BeautifulSwipeItem(offset = offset, item = item)
         }
     }
 }
@@ -46,12 +62,20 @@ fun BeautifulSwipeItem(
     corner: Dp = 12.dp,
     elevation: Dp = 4.dp,
     padding: Dp = 10.dp,
+    offset: Offset,
     item: SwipeItem
 ) {
     Card(
         modifier = Modifier
             .size(width = width, height = height)
-            .padding(padding),
+            .padding(padding)
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    println("layout : width=${placeable.width}, height=${placeable.height}/ offset: x=${offset.x}, y=${offset.y}")
+                    placeable.placeRelative(offset.x.roundToInt(), offset.y.roundToInt())
+                }
+            },
         shape = RoundedCornerShape(corner),
         elevation = elevation
     ) {
