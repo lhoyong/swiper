@@ -83,3 +83,8 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+.idea/compiler.xml
+.idea/deploymentTargetDropDown.xml
+.idea/gradle.properties
+.idea/misc.xml
