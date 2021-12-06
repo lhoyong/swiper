@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling:1.1.0-beta03")
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
     implementation("androidx.compose.foundation:foundation:1.1.0-beta03")
+    implementation("androidx.compose.animation:animation:1.1.0-beta03")
     // Material Design
     implementation("androidx.compose.material:material:1.1.0-beta03")
     // Material design icons

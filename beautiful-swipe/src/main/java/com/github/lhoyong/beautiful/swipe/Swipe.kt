@@ -38,13 +38,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
 
 internal class SwipeState(
-    val screenWidth: Float,
+    private val screenWidth: Float,
     private val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
 ) {
     /**
@@ -57,23 +58,16 @@ internal class SwipeState(
 
     var rotate: Float by mutableStateOf(0f)
 
-    /**
-     * Anchors
-     */
+    var scale: Float by mutableStateOf(0f)
+
     val right = Offset(screenWidth, 0f)
-    val left = Offset(-screenWidth, 0f)
     val center = Offset(0f, 0f)
 
-    /**
-     * Threshold to start swiping
-     */
     var threshold: Float = 0.0f
 
     var velocityThreshold by mutableStateOf(0f)
 
-    var scale = Animatable(0f)
-
-    internal suspend fun snapInternalTo(previous: Float, target: Float): Float {
+    private suspend fun snapInternalTo(previous: Float, target: Float): Float {
         return Animatable(previous).apply {
             snapTo(target)
         }.value
@@ -82,7 +76,7 @@ internal class SwipeState(
     private suspend fun animateInternalTo(
         previous: Float,
         target: Float,
-        result: suspend (Float) -> Unit
+        result: suspend (Float) -> Unit,
     ) {
         isAnimationRunning = true
         try {
@@ -96,55 +90,138 @@ internal class SwipeState(
         }
     }
 
-    suspend fun swipeLeft() {
+    suspend fun drag(dragAmount: Offset) {
+        coroutineScope {
+            launch {
+                val x = snapInternalTo(
+                    currentValue.x,
+                    currentValue.x + dragAmount.x
+                )
+                val y = snapInternalTo(
+                    currentValue.y,
+                    currentValue.y + dragAmount.y
+                )
+                currentValue = Offset(x, y)
+            }
+            launch {
+                val targetRotation = normalize(
+                    center.x,
+                    right.x,
+                    abs(currentValue.x),
+                    0f,
+                    10f
+                )
+                rotate =
+                    snapInternalTo(rotate, targetRotation * -currentValue.x.sign)
+            }
+            launch {
+                // TODO checked drag scale
+                scale = snapInternalTo(
+                    scale,
+                    normalize(
+                        center.x,
+                        right.x / 3,
+                        abs(currentValue.x),
+                        0.8f
+                    )
+                )
+            }
+        }
+    }
+
+    suspend fun runAnimation(direction: Direction) {
+        when (direction) {
+            Direction.Left -> swipeLeft()
+            Direction.Right -> swipeRight()
+            Direction.Center -> swipeCenter()
+        }
+    }
+
+    private suspend fun swipeLeft() {
         animateInternalTo(currentValue.x, -screenWidth) {
-            val x = snapInternalTo(it, center.x)
-            val y = snapInternalTo(currentValue.y, 0f)
-            currentValue = Offset(x, y)
-            rotate = snapInternalTo(rotate, 0f)
-            scale.animateTo(0.8f)
+            currentValue = Offset(it, currentValue.y)
         }
-        scale.animateTo(1f, animationSpec)
+        coroutineScope {
+            launch {
+                val x = snapInternalTo(currentValue.x, 0f)
+                val y = snapInternalTo(currentValue.y, 0f)
+
+                currentValue = Offset(x, y)
+            }
+            launch { rotate = snapInternalTo(rotate, 0f) }
+            launch {
+                animateInternalTo(screenWidth, 0.8f) {
+                    scale = it
+                }
+            }
+        }
+        animateInternalTo(screenWidth, 1f) {
+            scale = it
+        }
     }
 
-    suspend fun swipeRight() {
+    private suspend fun swipeRight() {
         animateInternalTo(currentValue.x, screenWidth) {
-            val x = snapInternalTo(it, center.x)
-            val y = snapInternalTo(currentValue.y, 0f)
-            currentValue = Offset(x, y)
-            rotate = snapInternalTo(rotate, 0f)
-            scale.animateTo(0.8f)
+            currentValue = Offset(it, currentValue.y)
         }
-        scale.animateTo(1f, animationSpec)
+        coroutineScope {
+            launch {
+                val x = snapInternalTo(currentValue.x, center.x)
+                val y = snapInternalTo(currentValue.y, 0f)
+                currentValue = Offset(x, y)
+            }
+            launch { rotate = snapInternalTo(rotate, 0f) }
+            launch {
+                animateInternalTo(screenWidth, 0.8f) {
+                    scale = it
+                }
+            }
+        }
+        animateInternalTo(screenWidth, 1f) {
+            scale = it
+        }
     }
 
-    suspend fun returnCenter() {
-        var x = 0f
-        var y = 0f
-        animateInternalTo(currentValue.x, center.x) {
-            x = it
+    private suspend fun swipeCenter() {
+        coroutineScope {
+            launch {
+                animateInternalTo(currentValue.x, center.x) {
+                    currentValue = currentValue.copy(x = it)
+                }
+            }
+            launch {
+                animateInternalTo(currentValue.y, center.y) {
+                    currentValue = currentValue.copy(y = it)
+                }
+            }
+            launch {
+                animateInternalTo(rotate, 0f) {
+                    rotate = it
+                }
+            }
+            launch {
+                animateInternalTo(screenWidth, 0.8f) {
+                    scale = it
+                }
+            }
         }
-        animateInternalTo(currentValue.y, center.y) {
-            y = it
-        }
-        currentValue = Offset(x, y)
-        animateInternalTo(rotate, 0f) {
-            rotate = it
-        }
-        scale.animateTo(0.8f, animationSpec)
     }
+}
+
+/* Swipe Direction */
+internal enum class Direction {
+    Left, Right, Center
 }
 
 @Composable
 internal fun rememberSwipeState(
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
 ): SwipeState {
-    val width = with(LocalConfiguration.current) {
-        screenWidthDp.toFloat()
+    val screenWidth = with(LocalConfiguration.current) {
+        LocalDensity.current.run { screenWidthDp.dp.toPx() }
     }
-
     return remember {
-        SwipeState(width, animationSpec)
+        SwipeState(screenWidth, animationSpec)
     }
 }
 
@@ -171,56 +248,29 @@ internal fun Modifier.swipe(
         onEnd = { velocity ->
             if (state.currentValue.x <= 0f) {
                 if (velocity.x <= -state.velocityThreshold) {
-                    state.swipeLeft()
+                    state.runAnimation(Direction.Left)
                 } else {
                     if (state.currentValue.x > -state.threshold) {
-                        state.returnCenter()
+                        state.runAnimation(Direction.Center)
                     } else {
-                        state.swipeLeft()
+                        state.runAnimation(Direction.Left)
                     }
                 }
             } else {
                 if (velocity.x >= state.velocityThreshold) {
-                    state.swipeRight()
+                    state.runAnimation(Direction.Right)
                 } else {
                     if (state.currentValue.x < state.threshold) {
-                        state.returnCenter()
+                        state.runAnimation(Direction.Center)
                     } else {
-                        state.swipeRight()
+                        state.runAnimation(Direction.Right)
                     }
                 }
             }
         },
         onDrag = { _, dragAmount ->
             if (state.isAnimationRunning.not()) {
-
-                val x = state.snapInternalTo(
-                    state.currentValue.x,
-                    state.currentValue.x + dragAmount.x
-                )
-                val y = state.snapInternalTo(
-                    state.currentValue.y,
-                    state.currentValue.y + dragAmount.y
-                )
-                state.currentValue = Offset(x, y)
-                val targetRotation = normalize(
-                    state.center.x,
-                    state.right.x,
-                    abs(state.currentValue.x),
-                    0f,
-                    10f
-                )
-                state.rotate =
-                    state.snapInternalTo(state.rotate, targetRotation * -state.currentValue.x.sign)
-
-                state.scale.snapTo(
-                    normalize(
-                        state.center.x,
-                        state.right.x / 3,
-                        abs(state.currentValue.x),
-                        0.8f
-                    )
-                )
+                state.drag(dragAmount)
             }
         }
     )
@@ -234,8 +284,12 @@ internal fun Modifier.drag(
     val scope = rememberCoroutineScope()
     Modifier.pointerInput(Unit) {
         detectDragGestures(
-            onDragCancel = { scope.launch { onEnd(velocity) } },
-            onDragEnd = { scope.launch { onEnd(velocity) } },
+            onDragCancel = {
+                scope.launch { onEnd(velocity) }
+            },
+            onDragEnd = {
+                scope.launch { onEnd(velocity) }
+            },
             onDrag = { change, dragAmount ->
                 velocity = dragAmount
                 scope.launch { onDrag(change, dragAmount) }
@@ -252,7 +306,7 @@ internal fun normalize(
     endRange: Float = 1f
 ): Float {
     require(startRange < endRange) {
-        "Start range is greater than End range"
+        "startRange must be less than endRange."
     }
     val value = v.coerceIn(min, max)
     return (value - min) / (max - min) * (endRange - startRange) + startRange

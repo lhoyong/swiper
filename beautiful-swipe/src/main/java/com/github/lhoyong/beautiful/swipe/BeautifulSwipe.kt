@@ -44,13 +44,14 @@ fun BeautifulSwipe(
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(30.dp)
             .swipe(state)
+            .padding(30.dp)
     ) {
         items.forEachIndexed { index, item ->
             BeautifulSwipeItem(
                 offset = state.currentValue,
                 rotate = state.rotate,
+                scale = state.scale,
                 item = item,
                 isAnimated = index == items.lastIndex
             )
@@ -65,6 +66,7 @@ fun BeautifulSwipeItem(
     padding: Dp = 10.dp,
     offset: Offset,
     rotate: Float,
+    scale: Float,
     item: SwipeItem,
     isAnimated: Boolean
 ) {
@@ -81,6 +83,9 @@ fun BeautifulSwipeItem(
             .graphicsLayer {
                 if (isAnimated) {
                     rotationZ = rotate
+                    // TODO checked scale to position
+                    scaleX = scale
+                    scaleY = scale
                 }
             },
         shape = RoundedCornerShape(corner),
