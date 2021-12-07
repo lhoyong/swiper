@@ -67,6 +67,10 @@ internal class SwipeState(
 
     var velocityThreshold by mutableStateOf(0f)
 
+    var onSwipeStart: () -> Unit = {}
+    var onSwipeEnd: () -> Unit = {}
+    var onAnimationEnd: () -> Unit = {}
+
     private suspend fun snapInternalTo(previous: Float, target: Float): Float {
         return Animatable(previous).apply {
             snapTo(target)
@@ -115,7 +119,6 @@ internal class SwipeState(
                     snapInternalTo(rotate, targetRotation * -currentValue.x.sign)
             }
             launch {
-                // TODO checked drag scale
                 scale = snapInternalTo(
                     scale,
                     normalize(
@@ -138,72 +141,89 @@ internal class SwipeState(
     }
 
     private suspend fun swipeLeft() {
-        animateInternalTo(currentValue.x, -screenWidth) {
-            currentValue = Offset(it, currentValue.y)
-        }
-        coroutineScope {
-            launch {
-                val x = snapInternalTo(currentValue.x, 0f)
-                val y = snapInternalTo(currentValue.y, 0f)
-
-                currentValue = Offset(x, y)
+        isAnimationRunning = true
+        try {
+            animateInternalTo(currentValue.x, -screenWidth) {
+                currentValue = Offset(it, currentValue.y)
             }
-            launch { rotate = snapInternalTo(rotate, 0f) }
-            launch {
-                animateInternalTo(screenWidth, 0.8f) {
-                    scale = it
+            onAnimationEnd()
+            coroutineScope {
+                launch {
+                    val x = snapInternalTo(currentValue.x, 0f)
+                    val y = snapInternalTo(currentValue.y, 0f)
+                    currentValue = Offset(x, y)
+                }
+                launch { rotate = snapInternalTo(rotate, 0f) }
+                launch {
+                    animateInternalTo(scale, 0.8f) {
+                        scale = it
+                    }
                 }
             }
-        }
-        animateInternalTo(screenWidth, 1f) {
-            scale = it
+            animateInternalTo(scale, 1f) {
+                scale = it
+            }
+        } finally {
+            isAnimationRunning = false
         }
     }
 
     private suspend fun swipeRight() {
-        animateInternalTo(currentValue.x, screenWidth) {
-            currentValue = Offset(it, currentValue.y)
-        }
-        coroutineScope {
-            launch {
-                val x = snapInternalTo(currentValue.x, center.x)
-                val y = snapInternalTo(currentValue.y, 0f)
-                currentValue = Offset(x, y)
+        isAnimationRunning = true
+        try {
+            animateInternalTo(currentValue.x, screenWidth) {
+                currentValue = Offset(it, currentValue.y)
             }
-            launch { rotate = snapInternalTo(rotate, 0f) }
-            launch {
-                animateInternalTo(screenWidth, 0.8f) {
-                    scale = it
+            onAnimationEnd()
+            coroutineScope {
+                launch {
+                    val x = snapInternalTo(currentValue.x, center.x)
+                    val y = snapInternalTo(currentValue.y, 0f)
+                    currentValue = Offset(x, y)
+                }
+                launch { rotate = snapInternalTo(rotate, 0f) }
+
+                launch {
+                    animateInternalTo(scale, 0.8f) {
+                        scale = it
+                    }
                 }
             }
-        }
-        animateInternalTo(screenWidth, 1f) {
-            scale = it
+            animateInternalTo(scale, 1f) {
+                scale = it
+            }
+        } finally {
+            isAnimationRunning = false
         }
     }
 
     private suspend fun swipeCenter() {
-        coroutineScope {
-            launch {
-                animateInternalTo(currentValue.x, center.x) {
-                    currentValue = currentValue.copy(x = it)
+        isAnimationRunning = true
+        try {
+            coroutineScope {
+                launch {
+                    animateInternalTo(currentValue.x, center.x) {
+                        currentValue = currentValue.copy(x = it)
+                    }
+                }
+                launch {
+                    animateInternalTo(currentValue.y, center.y) {
+                        currentValue = currentValue.copy(y = it)
+                    }
+                }
+                launch {
+                    animateInternalTo(rotate, 0f) {
+                        rotate = it
+                    }
+                }
+                launch {
+                    animateInternalTo(scale, 0.8f) {
+                        scale = it
+                    }
                 }
             }
-            launch {
-                animateInternalTo(currentValue.y, center.y) {
-                    currentValue = currentValue.copy(y = it)
-                }
-            }
-            launch {
-                animateInternalTo(rotate, 0f) {
-                    rotate = it
-                }
-            }
-            launch {
-                animateInternalTo(screenWidth, 0.8f) {
-                    scale = it
-                }
-            }
+        } finally {
+            isAnimationRunning = false
         }
     }
 }

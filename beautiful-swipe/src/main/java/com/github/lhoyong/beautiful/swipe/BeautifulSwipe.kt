@@ -24,6 +24,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -40,21 +45,30 @@ import kotlin.math.roundToInt
 fun BeautifulSwipe(
     items: List<SwipeItem>
 ) {
-    val state = rememberSwipeState()
+    var itemsInternal by remember { mutableStateOf(items) }
+    val rememberSwipeState = rememberSwipeState()
+
+    rememberSwipeState.onAnimationEnd = {
+        itemsInternal = itemsInternal.drop(1)
+    }
+
+    val targetItems = itemsInternal.take(2).reversed()
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .swipe(state)
+            .swipe(rememberSwipeState)
             .padding(30.dp)
     ) {
-        items.forEachIndexed { index, item ->
-            BeautifulSwipeItem(
-                offset = state.currentValue,
-                rotate = state.rotate,
-                scale = state.scale,
-                item = item,
-                isAnimated = index == items.lastIndex
-            )
+        targetItems.forEachIndexed { index, item ->
+            key(item) {
+                BeautifulSwipeItem(
+                    offset = rememberSwipeState.currentValue,
+                    rotate = rememberSwipeState.rotate,
+                    scale = rememberSwipeState.scale,
+                    item = item,
+                    isAnimated = if (targetItems.size == 1) true else index == 1
+                )
+            }
         }
     }
 }
@@ -81,12 +95,9 @@ fun BeautifulSwipeItem(
                 ) else IntOffset(0, 0)
             }
             .graphicsLayer {
-                if (isAnimated) {
-                    rotationZ = rotate
-                    // TODO checked scale to position
-                    scaleX = scale
-                    scaleY = scale
-                }
+                rotationZ = if (isAnimated) rotate else 0f
+                scaleX = if (!isAnimated) scale else 1f
+                scaleY = if (!isAnimated) scale else 1f
             },
         shape = RoundedCornerShape(corner),
         elevation = elevation

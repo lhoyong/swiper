@@ -33,7 +33,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val items = listOf(
             SwipeItem(imageUrl = "https://www.collinsdictionary.com/images/full/apple_158989157.jpg"),
-            SwipeItem(imageUrl = "https://www.cookingclassy.com/wp-content/uploads/2020/04/bread-recipe-1.jpg")
+            SwipeItem(imageUrl = "https://www.cookingclassy.com/wp-content/uploads/2020/04/bread-recipe-1.jpg"),
+            SwipeItem(imageUrl = "https://www.maangchi.com/wp-content/uploads/2018/02/roasted-chicken-1.jpg"),
+            SwipeItem("https://upload.wikimedia.org/wikipedia/commons/f/f6/15-09-26-RalfR-WLC-0098.jpg")
         )
         setContent {
             BeautifulTheme {
