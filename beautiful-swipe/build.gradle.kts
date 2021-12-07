@@ -41,8 +41,6 @@ android {
 }
 
 dependencies {
-    api("io.coil-kt:coil-compose:1.4.0")
-
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.0")

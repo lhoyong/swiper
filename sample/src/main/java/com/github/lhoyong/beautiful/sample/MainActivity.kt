@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lhoyong.beautiful
+package com.github.lhoyong.beautiful.sample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberImagePainter
+import com.github.lhoyong.beautiful.sample.ui.swipe.SwipeItem
 import com.github.lhoyong.beautiful.sample.ui.theme.BeautifulTheme
 import com.github.lhoyong.beautiful.swipe.BeautifulSwipe
-import com.github.lhoyong.beautiful.swipe.SwipeItem
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterialApi
@@ -43,7 +46,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    BeautifulSwipe(items)
+                    BeautifulSwipe(items) { item ->
+                        Image(
+                            painter = rememberImagePainter(item.imageUrl),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
         }

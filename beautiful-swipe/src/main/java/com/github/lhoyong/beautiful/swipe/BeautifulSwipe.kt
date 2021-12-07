@@ -15,7 +15,6 @@
  */
 package com.github.lhoyong.beautiful.swipe
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -33,17 +32,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
 import kotlin.math.roundToInt
 
 @ExperimentalMaterialApi
 @Composable
-fun BeautifulSwipe(
-    items: List<SwipeItem>
+fun <T> BeautifulSwipe(
+    items: List<T>,
+    content: @Composable (T) -> Unit
 ) {
     var itemsInternal by remember { mutableStateOf(items) }
     val rememberSwipeState = rememberSwipeState()
@@ -66,7 +64,8 @@ fun BeautifulSwipe(
                     rotate = rememberSwipeState.rotate,
                     scale = rememberSwipeState.scale,
                     item = item,
-                    isAnimated = if (targetItems.size == 1) true else index == 1
+                    isAnimated = if (targetItems.size == 1) true else index == 1,
+                    content = content
                 )
             }
         }
@@ -74,15 +73,16 @@ fun BeautifulSwipe(
 }
 
 @Composable
-fun BeautifulSwipeItem(
+fun <T> BeautifulSwipeItem(
     corner: Dp = 12.dp,
     elevation: Dp = 4.dp,
     padding: Dp = 10.dp,
     offset: Offset,
     rotate: Float,
     scale: Float,
-    item: SwipeItem,
-    isAnimated: Boolean
+    item: T,
+    isAnimated: Boolean,
+    content: @Composable (T) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -102,10 +102,6 @@ fun BeautifulSwipeItem(
         shape = RoundedCornerShape(corner),
         elevation = elevation
     ) {
-        Image(
-            painter = rememberImagePainter(item.imageUrl),
-            contentDescription = "",
-            contentScale = ContentScale.Crop
-        )
+        content(item)
     }
 }

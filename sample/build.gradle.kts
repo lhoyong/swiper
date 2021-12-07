@@ -45,7 +45,7 @@ android {
 
 dependencies {
     implementation(project(":beautiful"))
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("com.google.android.material:material:1.4.0")
@@ -78,4 +78,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3")
 
     implementation("com.google.accompanist:accompanist-insets:0.10.0")
+
+    implementation("io.coil-kt:coil-compose:1.4.0")
 }
