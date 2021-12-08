@@ -1,5 +1,5 @@
 /*
- * Designed and developed by 2021 lhoyong
+ * Copyright 2021 by lhoyong
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,6 @@ internal class SwipeState(
 
     var velocityThreshold by mutableStateOf(0f)
 
-    var onSwipeStart: () -> Unit = {}
-    var onSwipeEnd: () -> Unit = {}
     var onAnimationEnd: () -> Unit = {}
 
     private suspend fun snapInternalTo(previous: Float, target: Float): Float {
@@ -143,8 +141,18 @@ internal class SwipeState(
     private suspend fun swipeLeft() {
         isAnimationRunning = true
         try {
-            animateInternalTo(currentValue.x, -screenWidth) {
-                currentValue = Offset(it, currentValue.y)
+            coroutineScope {
+                launch {
+                    val distance = -screenWidth - (threshold / 2)
+                    animateInternalTo(currentValue.x, distance) {
+                        currentValue = Offset(it, currentValue.y)
+                    }
+                }
+                launch {
+                    animateInternalTo(scale, 1f) {
+                        scale = it
+                    }
+                }
             }
             onAnimationEnd()
             coroutineScope {
@@ -154,14 +162,6 @@ internal class SwipeState(
                     currentValue = Offset(x, y)
                 }
                 launch { rotate = snapInternalTo(rotate, 0f) }
-                launch {
-                    animateInternalTo(scale, 0.8f) {
-                        scale = it
-                    }
-                }
-            }
-            animateInternalTo(scale, 1f) {
-                scale = it
             }
         } finally {
             isAnimationRunning = false
@@ -171,8 +171,18 @@ internal class SwipeState(
     private suspend fun swipeRight() {
         isAnimationRunning = true
         try {
-            animateInternalTo(currentValue.x, screenWidth) {
-                currentValue = Offset(it, currentValue.y)
+            coroutineScope {
+                launch {
+                    val distance = screenWidth + (threshold / 2)
+                    animateInternalTo(currentValue.x, distance) {
+                        currentValue = Offset(it, currentValue.y)
+                    }
+                }
+                launch {
+                    animateInternalTo(scale, 1f) {
+                        scale = it
+                    }
+                }
             }
             onAnimationEnd()
             coroutineScope {
@@ -182,15 +192,6 @@ internal class SwipeState(
                     currentValue = Offset(x, y)
                 }
                 launch { rotate = snapInternalTo(rotate, 0f) }
-
-                launch {
-                    animateInternalTo(scale, 0.8f) {
-                        scale = it
-                    }
-                }
-            }
-            animateInternalTo(scale, 1f) {
-                scale = it
             }
         } finally {
             isAnimationRunning = false
@@ -248,7 +249,7 @@ internal fun rememberSwipeState(
 @ExperimentalMaterialApi
 internal fun Modifier.swipe(
     state: SwipeState,
-    thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.2f) },
+    thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.3f) },
     velocityThreshold: Dp = VelocityThreshold
 ): Modifier = composed {
     val density = LocalDensity.current
