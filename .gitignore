@@ -88,3 +88,4 @@ lint/tmp/
 .idea/deploymentTargetDropDown.xml
 .idea/gradle.properties
 .idea/misc.xml
+.idea/kotlinScripting.xml

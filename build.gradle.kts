@@ -5,9 +5,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.3")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.0")
-        classpath("com.diffplug.spotless:spotless-plugin-gradle:5.15.0")
+        classpath(Dep.Plugins.androidGradlePlugin)
+        classpath(Dep.Plugins.kotlin)
+        classpath(Dep.Plugins.spotless)
     }
 }
 
