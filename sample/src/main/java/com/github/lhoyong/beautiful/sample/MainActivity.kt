@@ -27,7 +27,7 @@ import com.github.lhoyong.beautiful.sample.ui.swipe.SwipeScreen
 import com.github.lhoyong.beautiful.sample.ui.theme.BeautifulTheme
 
 class MainActivity : ComponentActivity() {
-    @ExperimentalMaterialApi
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
