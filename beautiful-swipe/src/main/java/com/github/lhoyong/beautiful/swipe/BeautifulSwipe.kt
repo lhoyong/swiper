@@ -19,10 +19,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
+import androidx.compose.material.ThresholdConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -35,15 +34,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @ExperimentalMaterialApi
 @Composable
 fun <T> BeautifulSwipe(
     items: List<T>,
+    modifier: Modifier = Modifier,
+    thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.3f) },
     content: @Composable (T) -> Unit
 ) {
     var itemsInternal by rememberSaveable { mutableStateOf(items) }
@@ -56,8 +55,8 @@ fun <T> BeautifulSwipe(
     val targetItems = itemsInternal.take(2).reversed()
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .swipe(rememberSwipeState)
+        modifier = modifier
+            .swipe(rememberSwipeState, thresholdConfig)
     ) {
         targetItems.forEachIndexed { index, item ->
             key(item) {
@@ -75,10 +74,7 @@ fun <T> BeautifulSwipe(
 }
 
 @Composable
-fun <T> BeautifulSwipeItem(
-    corner: Dp = 12.dp,
-    elevation: Dp = 4.dp,
-    padding: Dp = 10.dp,
+private fun <T> BeautifulSwipeItem(
     offset: Offset,
     rotate: Float,
     scale: Float,
@@ -86,10 +82,8 @@ fun <T> BeautifulSwipeItem(
     isAnimated: Boolean,
     content: @Composable (T) -> Unit
 ) {
-    Card(
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
             .offset {
                 if (isAnimated) IntOffset(
                     offset.x.roundToInt(),
@@ -100,9 +94,7 @@ fun <T> BeautifulSwipeItem(
                 rotationZ = if (isAnimated) rotate else 0f
                 scaleX = if (!isAnimated) scale else 1f
                 scaleY = if (!isAnimated) scale else 1f
-            },
-        shape = RoundedCornerShape(corner),
-        elevation = elevation
+            }
     ) {
         content(item)
     }
@@ -111,7 +103,7 @@ fun <T> BeautifulSwipeItem(
 @ExperimentalMaterialApi
 @Preview
 @Composable
-fun SwipePreview() {
+private fun SwipePreview() {
     BeautifulSwipe(items = listOf(1, 2, 3, 4)) {
         Box(
             Modifier
