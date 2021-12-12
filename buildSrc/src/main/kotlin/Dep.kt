@@ -9,7 +9,7 @@ object Dep {
 
 
     object Plugins {
-        const val androidGradlePlugin = "com.android.tools.build:gradle:7.0.3"
+        const val androidGradlePlugin = "com.android.tools.build:gradle:7.0.4"
         const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Kotlin.version}"
         const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:5.15.0"
     }
@@ -57,6 +57,7 @@ object Dep {
         const val junitExt = "androidx.test.ext:junit:1.1.3"
         const val espresso = "androidx.test.espresso:espresso-core:3.4.0"
         const val compose = "androidx.compose.ui:ui-test-junit4:${Compose.version}"
+        const val composeManifest = "androidx.compose.ui:ui-test-manifest:${Compose.version}"
     }
 
     const val coil = "io.coil-kt:coil-compose:1.4.0"

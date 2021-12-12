@@ -1,7 +1,6 @@
 plugins {
     id("com.android.library")
     kotlin("android")
-    kotlin("kapt")
 }
 
 android {
@@ -23,6 +22,16 @@ android {
             )
         }
     }
+
+    packagingOptions {
+        resources.excludes.addAll(
+            listOf(
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1"
+            )
+        )
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -65,7 +74,10 @@ dependencies {
 
     testImplementation(Dep.Test.junit)
 
+    androidTestImplementation(Dep.Compose.activity)
+
     androidTestImplementation(Dep.AndroidTest.junitExt)
     androidTestImplementation(Dep.AndroidTest.espresso)
     androidTestImplementation(Dep.AndroidTest.compose)
+    debugImplementation(Dep.AndroidTest.composeManifest)
 }
