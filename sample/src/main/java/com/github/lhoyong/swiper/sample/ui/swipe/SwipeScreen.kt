@@ -15,6 +15,7 @@
  */
 package com.github.lhoyong.swiper.sample.ui.swipe
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,7 +53,10 @@ fun SwipeScreen() {
         items = items,
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Gray)
+            .background(Color.Gray),
+        onSwiped = {
+            Log.i("Swiper", "end item : $it")
+        }
     ) { item ->
         SwipeItem(item)
     }
