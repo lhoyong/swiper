@@ -5,5 +5,4 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "beautiful"
-include(":sample", "beautiful-swipe", ":beautiful")
+include(":sample", "swiper")

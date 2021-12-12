@@ -8,7 +8,7 @@ android {
     compileSdk = Dep.compileSdk
 
     defaultConfig {
-        applicationId = "com.github.lhoyong.beautiful.sample"
+        applicationId = "com.github.lhoyong.swiper.sample"
         minSdk = Dep.minSdk
         targetSdk = Dep.targetSdk
         versionCode = 1
@@ -54,7 +54,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":beautiful"))
+    implementation(project(":swiper"))
     implementation(Dep.Kotlin.stdlib)
     implementation(Dep.Kotlin.coroutine)
 
