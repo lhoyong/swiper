@@ -84,4 +84,4 @@ jobs:
           target: ${{ matrix.target }}
           arch: x86_64
           disable-animations: true
-          script: ./gradlew connectedCheck --stacktrace
+          script: ./gradlew :swiper:connectedCheck --stacktrace
