@@ -26,7 +26,7 @@ allprojects {
 Second Add dependency
 ~~~gradle
 dependencies {
-    implementation 'com.github.lhoyong.swiper:1.0.0'
+    implementation 'com.github.lhoyong:swiper:1.0.0'
 }
 ~~~
 
