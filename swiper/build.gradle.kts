@@ -73,15 +73,18 @@ dependencies {
     debugImplementation(Dep.AndroidTest.composeManifest)
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles sources JAR"
+val javadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+}
+
+val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(android.sourceSets.getByName("main").java.srcDirs)
 }
 
 artifacts {
-    archives(sourcesJar)
+    archives(sourcesJar.get())
+    archives(javadocJar.get())
 }
 
 afterEvaluate {
@@ -93,11 +96,44 @@ afterEvaluate {
         }
         publications {
             create<MavenPublication>("release") {
-                from(components["release"])
                 groupId = "com.github.lhoyong"
                 artifactId = "swiper"
                 version = "1.0.0"
-                artifact(sourcesJar)
+
+                if (project.plugins.hasPlugin("com.android.library")) {
+                    from(components.getByName("release"))
+                } else {
+                    from(components.getByName("java"))
+                }
+
+                artifact(javadocJar.get())
+                artifact(sourcesJar.get())
+
+                pom {
+                    name.set(artifactId)
+                    description.set("Android Jetpack Compose swipe library")
+                    url.set("https://github.com/lhoyong/swiper")
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("https://github.com/lhoyong/swiper/blob/main/LICENSE")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("lhoyong")
+                            name.set("hoyong")
+                            email.set("lee199402@gmail.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:github.com/lhoyong/swiper.git")
+                        url.set("https://github.com/lhoyong/swiper")
+                    }
+                }
             }
         }
     }
