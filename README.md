@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
   <a href="https://github.com/lhoyong/swiper/actions"><img alt="Build Status" src="https://github.com/lhoyong/swiper/actions/workflows/check.yml/badge.svg"/></a>
-  <a href="https://jitpack.io/#lhoyong/swiper"><img alt="Jitpack" src="https://jitpack.io/v/lhoyong/swiper.svg"/></a>
+  <a href="https://github.com/lhoyong/swiper/releases"><img alt="Maven Central" src="https://img.shields.io/maven-central/v/io.github.lhoyong/swiper?style=flat-square"/></a>
 </p>
 
 Android Jetpack Compose swipe library.
@@ -18,7 +18,7 @@ First Add it in your root project `build.gradle`
 ~~~gradle
 allprojects {
     repositories {
-        maven { url 'https://jitpack.io' }
+        mavenCentral()
     }
 }
 ~~~
@@ -26,7 +26,7 @@ allprojects {
 Second Add dependency
 ~~~gradle
 dependencies {
-    implementation 'com.github.lhoyong:swiper:1.0.0'
+    implementation 'io.github.lhoyong:swiper:1.0.1'
 }
 ~~~
 
