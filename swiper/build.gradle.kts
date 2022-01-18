@@ -61,6 +61,8 @@ dependencies {
 
     implementation(Dep.Compose.material)
 
+    // for test
+    implementation(Dep.Compose.activity)
     implementation(Dep.Compose.runtime)
 
     testImplementation(Dep.Test.junit)
