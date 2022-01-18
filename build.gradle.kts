@@ -13,7 +13,8 @@ buildscript {
 
 subprojects {
     repositories {
-        maven { url = uri("https://jitpack.io") }
+        google()
+        mavenCentral()
     }
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {

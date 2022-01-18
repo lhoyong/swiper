@@ -1,7 +1,10 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("com.android.library")
     kotlin("android")
-    `maven-publish`
+    id("maven-publish")
+    id("signing")
 }
 
 android {
@@ -74,6 +77,12 @@ dependencies {
     debugImplementation(Dep.AndroidTest.composeManifest)
 }
 
+ext["signing.keyId"] = ""
+ext["signing.password"] = ""
+ext["signing.key"] = ""
+ext["ossUserName"] = ""
+ext["ossPassword"] = ""
+
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
 }
@@ -89,15 +98,37 @@ artifacts {
 }
 
 afterEvaluate {
+    val secretPropsFile = project.rootProject.file("local.properties")
+    if (secretPropsFile.exists()) {
+        secretPropsFile.reader().use {
+            Properties().apply {
+                load(it)
+            }
+        }.onEach { (name, value) ->
+            ext[name.toString()] = value
+        }
+    } else {
+        ext["ossUsername"] = System.getenv("OSS_USERNAME")
+        ext["ossPassword"] = System.getenv("OSS_PASSWORD")
+        ext["signing.keyId"] = System.getenv("SIGNING_KEY_ID")
+        ext["signing.password"] = System.getenv("SIGNING_PASSWORD")
+        ext["signing.key"] = System.getenv("SIGNING_KEY")
+    }
+
     publishing {
         repositories {
             maven {
-                url = uri("$buildDir/repository")
+                name = "sonatype"
+                setUrl("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                credentials {
+                    username = extra.get("ossUsername").toString()
+                    password = extra.get("ossPassword").toString()
+                }
             }
         }
         publications {
             create<MavenPublication>("release") {
-                groupId = "com.github.lhoyong"
+                groupId = "io.github.lhoyong"
                 artifactId = "swiper"
                 version = "1.0.0"
 
@@ -137,5 +168,14 @@ afterEvaluate {
                 }
             }
         }
+    }
+
+    signing {
+        useInMemoryPgpKeys(
+            extra.get("signing.keyId").toString(),
+            extra.get("signing.key").toString(),
+            extra.get("signing.password").toString(),
+        )
+        sign(publishing.publications)
     }
 }
