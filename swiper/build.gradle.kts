@@ -130,7 +130,7 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 groupId = "io.github.lhoyong"
                 artifactId = "swiper"
-                version = "1.0.0"
+                version = "1.0.1"
 
                 if (project.plugins.hasPlugin("com.android.library")) {
                     from(components.getByName("release"))
