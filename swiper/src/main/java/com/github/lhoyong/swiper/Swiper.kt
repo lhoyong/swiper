@@ -21,6 +21,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.ThresholdConfig
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,13 @@ fun <T> Swiper(
         val captureItem = itemsInternal[0]
         itemsInternal = itemsInternal.drop(1)
         onSwiped?.invoke(captureItem)
+    }
+
+    /**
+     * If items changed, reset to itemsInternal
+     */
+    LaunchedEffect(items) {
+        itemsInternal = items
     }
 
     val targetItems = itemsInternal.take(2).reversed()
