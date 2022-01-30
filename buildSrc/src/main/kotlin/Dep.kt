@@ -9,15 +9,15 @@ object Dep {
 
 
     object Plugins {
-        const val androidGradlePlugin = "com.android.tools.build:gradle:7.0.4"
+        const val androidGradlePlugin = "com.android.tools.build:gradle:7.1.0"
         const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Kotlin.version}"
-        const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:5.15.0"
+        const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.2.0"
     }
 
     object Kotlin {
-        const val version = "1.6.0"
+        const val version = "1.6.10"
         const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$version"
-        const val coroutine = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
+        const val coroutine = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0"
     }
 
     object Android {
@@ -26,7 +26,7 @@ object Dep {
     }
 
     object Compose {
-        const val version = "1.1.0-rc01"
+        const val version = "1.1.0-rc03"
 
         const val runtime = "androidx.compose.runtime:runtime:$version"
 
@@ -41,7 +41,7 @@ object Dep {
 
         const val activity = "androidx.activity:activity-compose:1.4.0"
 
-        const val accompanist = "com.google.accompanist:accompanist-insets:0.10.0"
+        const val accompanist = "com.google.accompanist:accompanist-insets:0.24.1-alpha"
     }
 
     object Test {
