@@ -19,11 +19,16 @@ android {
 
     buildTypes {
         release {
+            isDebuggable = false
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        create("benchmark") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -74,6 +79,8 @@ dependencies {
     implementation(Dep.Compose.runtime)
 
     implementation(Dep.Compose.accompanist)
+
+    implementation(Dep.Android.profileInstaller)
 
     testImplementation(Dep.Test.junit)
 
