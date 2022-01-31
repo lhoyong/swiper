@@ -57,8 +57,8 @@ class SwiperBaselineProfile {
             startActivityAndWait()
             // Find the ScrollView in the Showcase route
             val obj = device.findObject(By.desc("swiper"))
-            repeat(3) {
-                obj.drag(Point(-500, 0), 2000)
+            repeat(4) {
+                obj.drag(Point(if (it % 2 == 0) 500 else -500, 0), 2000)
                 device.wait(Until.findObject(By.desc("COMPOSE-IDLE")), 3000)
             }
         }
