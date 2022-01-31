@@ -25,6 +25,7 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("benchmark") {}
     }
 
     packagingOptions {

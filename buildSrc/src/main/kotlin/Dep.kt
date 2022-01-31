@@ -23,6 +23,7 @@ object Dep {
     object Android {
         const val core = "androidx.core:core-ktx:1.7.0"
         const val material = "com.google.android.material:material:1.4.0"
+        const val profileInstaller = "androidx.profileinstaller:profileinstaller:1.2.0-alpha02"
     }
 
     object Compose {
