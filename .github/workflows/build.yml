@@ -1,4 +1,4 @@
-name: Check
+name: Build
 
 on:
   pull_request:
@@ -13,17 +13,16 @@ on:
       - '**.md'
 
 jobs:
-
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: set up JDK 11
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '11'
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -32,12 +31,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Check for Lint
-        run: ./gradlew spotlessCheck
+        run: ./gradlew spotlessCheck lintDebug
 
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: set up JDK 11
         uses: actions/setup-java@v2
         with:
@@ -57,22 +56,22 @@ jobs:
   test:
     needs: build
     runs-on: macOS-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     strategy:
       matrix:
-        api-level: [29]
-        target: [google_apis]
+        api-level: [ 29 ]
+        target: [ google_apis ]
 
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '11'
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches

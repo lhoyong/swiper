@@ -20,7 +20,7 @@ android {
     buildTypes {
         release {
             isDebuggable = false
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -56,6 +56,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
+
+    lint {
+        checkDependencies = true
+        ignoreTestSources = true
+    }
 }
 
 dependencies {
@@ -84,8 +89,6 @@ dependencies {
     debugImplementation(libs.androidx.customview.poolingcontainer)
 
     implementation(libs.coil)
-
-    implementation(Dep.Compose.accompanist)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.kotlin.coroutines.test)

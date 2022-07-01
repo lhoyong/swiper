@@ -18,7 +18,7 @@ subprojects {
     }
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            val args = mutableListOf("-Xopt-in=kotlin.RequiresOptIn",)
+            val args = mutableListOf("-opt-in=kotlin.RequiresOptIn",)
 
             /**
              * @see https://chris.banes.dev/composable-metrics/

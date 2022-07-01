@@ -29,7 +29,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.time.ExperimentalTime
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalBaselineProfilesApi::class)
@@ -48,7 +47,6 @@ class SwiperBaselineProfile {
     }
 
     @Test
-    @OptIn(ExperimentalTime::class)
     fun baselineProfiles() {
         baselineProfileRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
