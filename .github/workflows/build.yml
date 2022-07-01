@@ -5,34 +5,8 @@ on:
     types: [ opened, ready_for_review, synchronize ]
     paths-ignore:
       - '**.md'
-  push:
-    branches:
-      - main
-      - develop
-    paths-ignore:
-      - '**.md'
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: set up JDK 11
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: '11'
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Check for Lint
-        run: ./gradlew spotlessCheck lintDebug
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -42,16 +16,20 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
-      - uses: actions/cache@v2
+      - name: Generate cache
+        uses: actions/cache@v3
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
+            ~/.gradle/caches/modules-*
+            ~/.gradle/caches/jars-*
+            ~/.gradle/caches/build-cache-*
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Debug Build with Gradle
+      - name: build
         run: ./gradlew assembleDebug
+      - name: Check for Lint
+        run: ./gradlew spotlessCheck lintDebug
 
   test:
     needs: build
@@ -71,11 +49,13 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
-      - uses: actions/cache@v3
+      - name: Generate cache
+        uses: actions/cache@v3
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
+            ~/.gradle/caches/modules-*
+            ~/.gradle/caches/jars-*
+            ~/.gradle/caches/build-cache-*
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
