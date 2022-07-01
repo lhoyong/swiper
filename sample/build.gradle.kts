@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    compileSdk = Dep.compileSdk
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.github.lhoyong.swiper.sample"
-        minSdk = Dep.minSdk
-        targetSdk = Dep.targetSdk
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0.0"
 
@@ -54,39 +54,45 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Dep.Compose.version
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
 dependencies {
     implementation(project(":swiper"))
-    implementation(Dep.Kotlin.stdlib)
-    implementation(Dep.Kotlin.coroutine)
 
-    implementation(Dep.Android.core)
-    implementation(Dep.Android.material)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.coroutines.core)
 
-    implementation(Dep.Compose.ui)
-    implementation(Dep.Compose.uiTooling)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.activity.compose)
 
-    implementation(Dep.Compose.foundation)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.foundation.layout)
+    implementation(libs.compose.ui.util)
+    implementation(libs.compose.runtime)
+    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
 
-    implementation(Dep.Compose.material)
-    implementation(Dep.Compose.materialIcon)
-    implementation(Dep.Compose.materialIconsExtended)
+    implementation(libs.compose.material)
+    implementation(libs.compose.material.iconsext)
 
-    implementation(Dep.Compose.activity)
-    implementation(Dep.Compose.runtime)
+    implementation(libs.androidx.profileinstaller)
+
+    debugImplementation(libs.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.customview.customview)
+    debugImplementation(libs.androidx.customview.poolingcontainer)
+
+    implementation(libs.coil)
 
     implementation(Dep.Compose.accompanist)
 
-    implementation(Dep.Android.profileInstaller)
-
-    testImplementation(Dep.Test.junit)
-
-    androidTestImplementation(Dep.AndroidTest.junitExt)
-    androidTestImplementation(Dep.AndroidTest.espresso)
-    androidTestImplementation(Dep.AndroidTest.compose)
-
-    implementation(Dep.coil)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.kotlin.coroutines.test)
+    androidTestImplementation(libs.androidx.junit.ext)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.compose.ui.test)
+    androidTestImplementation(libs.compose.ui.test.junit4)
 }

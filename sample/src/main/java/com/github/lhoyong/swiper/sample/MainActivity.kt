@@ -23,15 +23,19 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.github.lhoyong.swiper.sample.ui.swipe.SwipeScreen
-import com.github.lhoyong.swiper.sample.ui.theme.BeautifulTheme
+import com.github.lhoyong.swiper.sample.ui.theme.SwiperTheme
 
 class MainActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
-            BeautifulTheme {
+            SwiperTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background

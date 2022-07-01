@@ -5,9 +5,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(Dep.Plugins.androidGradlePlugin)
-        classpath(Dep.Plugins.kotlin)
-        classpath(Dep.Plugins.spotless)
+        classpath(libs.kotlin.gradle.plugin)
+        classpath(libs.spotless.gradle.plugin)
+        classpath(libs.android.gradle.plugin)
     }
 }
 
@@ -18,29 +18,35 @@ subprojects {
     }
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "11"
-        }
-    }
+            val args = mutableListOf("-Xopt-in=kotlin.RequiresOptIn",)
 
-    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
-        kotlinOptions {
-            freeCompilerArgs =
-                listOf(
-                    "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                    "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
-                    "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
-                    "-XXLanguage:+NonParenthesizedAnnotationsOnFunctionalTypes",
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true",
-
+            /**
+             * @see https://chris.banes.dev/composable-metrics/
+             * ./gradlew assembleRelease -Pswiper.enableComposeCompilerReports=true
+             */
+            if (project.findProperty("swiper.enableComposeCompilerReports") == "true") {
+                args.addAll(
+                    listOf(
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
+                                project.buildDir.absolutePath + "/compose_metrics"
                     )
+                )
+                args.addAll(
+                    listOf(
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
+                                project.buildDir.absolutePath + "/compose_metrics"
+                    )
+                )
+            }
+
+            freeCompilerArgs = args
         }
     }
 
     afterEvaluate {
         project.apply("$rootDir/spotless.gradle")
-        // used ./gradlew spotlessCheck
-        // used ./gradlew spotlessApply
     }
 }
 
