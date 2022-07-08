@@ -28,7 +28,6 @@ import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.time.ExperimentalTime
 
 /**
  * This is an example startup benchmark.
@@ -57,12 +56,11 @@ class SwiperBenchmark {
         benchmark(CompilationMode.Partial(baselineProfileMode = BaselineProfileMode.Require))
     }
 
-    @OptIn(ExperimentalTime::class)
-    fun benchmark(compilationMode: CompilationMode) {
+    private fun benchmark(compilationMode: CompilationMode) {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
-            iterations = 1,
+            iterations = 5,
             startupMode = StartupMode.COLD,
             compilationMode = compilationMode,
             setupBlock = {
