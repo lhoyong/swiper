@@ -40,7 +40,7 @@ class SwipeTest {
     fun setUp() {
         val items = listOf(1, 2, 3)
         rule.setContent {
-            Swiper(items = items) {
+            Swiper(count = items.size) {
                 Text(text = it.toString())
             }
         }

@@ -22,94 +22,79 @@ import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.ThresholdConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 
 /**
- * @param items swipe items
+ * @param count item count
  * @param modifier swipe container modifier
+ * @param state the state object to be used to control or observe the swiper's state.
  * @param thresholdConfig see [ThresholdConfig]
  * @param onSwiped swiped item, it's called when the swipe animation ends.
  * @param content swipe child item composable
  */
 @ExperimentalMaterialApi
 @Composable
-fun <T> Swiper(
-    items: List<T>,
+fun Swiper(
+    count: Int,
     modifier: Modifier = Modifier,
+    state: SwiperState = rememberSwiperState(),
     thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.3f) },
-    onSwiped: ((T) -> Unit)? = null,
-    content: @Composable (T) -> Unit
+    onSwiped: (() -> Unit)? = null,
+    content: @Composable SwiperScope.(index: Int) -> Unit
 ) {
-    var itemsInternal by remember { mutableStateOf(items) }
-    val rememberSwipeState = rememberSwipeState()
+    require(count >= 0) { "swipeCount must be >= 0" }
 
-    rememberSwipeState.onAnimationEnd = {
-        val captureItem = itemsInternal[0]
-        itemsInternal = itemsInternal.drop(1)
-        onSwiped?.invoke(captureItem)
+    state.onAnimationEnd = {
+        onSwiped?.invoke()
     }
 
-    /**
-     * If items changed, reset to itemsInternal
-     */
-    LaunchedEffect(items) {
-        itemsInternal = items
+    LaunchedEffect(count) {
+        state.totalCount = count - 1
+        state.currentIndex = 0
     }
 
-    val targetItems = itemsInternal.take(2).reversed()
+    val scope = remember(state) { SwiperScopeImpl(state) }
+
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
-            .swipe(rememberSwipeState, thresholdConfig)
+        modifier = modifier.swipe(state, thresholdConfig)
     ) {
-        targetItems.forEachIndexed { index, item ->
-            key(item) {
-                SwiperItem(
-                    offset = rememberSwipeState.currentValue,
-                    rotate = rememberSwipeState.rotate,
-                    scale = rememberSwipeState.scale,
-                    item = item,
-                    isAnimated = if (targetItems.size == 1) true else index == 1,
-                    content = content
-                )
+        for (index in count - 1 downTo state.currentIndex) {
+            val animated = state.currentIndex == index
+            Box(
+                modifier = Modifier
+                    .offset {
+                        if (animated) IntOffset(
+                            state.offset.x.roundToInt(),
+                            state.offset.y.roundToInt()
+                        ) else IntOffset(0, 0)
+                    }
+                    .graphicsLayer {
+                        rotationZ = if (animated) state.rotate else 0f
+                        scaleX = if (!animated) state.scale else 1f
+                        scaleY = if (!animated) state.scale else 1f
+                    }
+            ) {
+                scope.content(index)
             }
         }
     }
 }
 
-@Composable
-private fun <T> SwiperItem(
-    offset: Offset,
-    rotate: Float,
-    scale: Float,
-    item: T,
-    isAnimated: Boolean,
-    content: @Composable (T) -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .offset {
-                if (isAnimated) IntOffset(
-                    offset.x.roundToInt(),
-                    offset.y.roundToInt()
-                ) else IntOffset(0, 0)
-            }
-            .graphicsLayer {
-                rotationZ = if (isAnimated) rotate else 0f
-                scaleX = if (!isAnimated) scale else 1f
-                scaleY = if (!isAnimated) scale else 1f
-            }
-    ) {
-        content(item)
-    }
+@Stable
+interface SwiperScope {
+    val index: Int
+}
+
+private class SwiperScopeImpl(
+    state: SwiperState
+) : SwiperScope {
+
+    override val index: Int = state.currentIndex
 }

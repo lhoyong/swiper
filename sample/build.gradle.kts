@@ -82,6 +82,8 @@ dependencies {
     implementation(libs.compose.material)
     implementation(libs.compose.material.iconsext)
 
+    implementation(libs.accompanist.system.ui)
+
     implementation(libs.androidx.profileinstaller)
 
     debugImplementation(libs.compose.ui.test.manifest)
