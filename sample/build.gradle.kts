@@ -28,6 +28,7 @@ android {
         }
         create("benchmark") {
             initWith(getByName("release"))
+            isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }
