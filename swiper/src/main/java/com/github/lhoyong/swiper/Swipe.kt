@@ -63,6 +63,9 @@ class SwiperState(
     private val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
 ) {
 
+    /**
+     * current index
+     */
     var currentIndex: Int by mutableStateOf(0)
 
     internal var totalCount: Int by mutableStateOf(0)
@@ -342,4 +345,9 @@ internal fun normalize(
     }
     val value = v.coerceIn(min, max)
     return (value - min) / (max - min) * (endRange - startRange) + startRange
+}
+
+internal object SwiperDefault {
+
+    const val DefaultFraction = 0.3f
 }

@@ -23,6 +23,8 @@ import androidx.compose.material.ThresholdConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +46,7 @@ fun Swiper(
     count: Int,
     modifier: Modifier = Modifier,
     state: SwiperState = rememberSwiperState(),
-    thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.3f) },
+    thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(SwiperDefault.DefaultFraction) },
     onSwiped: (() -> Unit)? = null,
     content: @Composable SwiperScope.(index: Int) -> Unit
 ) {
@@ -65,7 +67,16 @@ fun Swiper(
         contentAlignment = Alignment.Center,
         modifier = modifier.swipe(state, thresholdConfig)
     ) {
-        for (index in count - 1 downTo state.currentIndex) {
+        /**
+         *  currentIndex + 1
+         */
+        val startIndex by remember(count) {
+            derivedStateOf {
+                (state.currentIndex + 1).coerceAtMost(count - 1)
+            }
+        }
+
+        for (index in startIndex downTo state.currentIndex) {
             val animated = state.currentIndex == index
             Box(
                 modifier = Modifier
