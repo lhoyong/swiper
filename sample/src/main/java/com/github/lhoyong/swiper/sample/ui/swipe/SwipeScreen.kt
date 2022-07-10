@@ -15,96 +15,193 @@
  */
 package com.github.lhoyong.swiper.sample.ui.swipe
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import com.github.lhoyong.swiper.R
 import com.github.lhoyong.swiper.Swiper
+import com.github.lhoyong.swiper.rememberSwiperState
 
 @ExperimentalMaterialApi
 @Composable
 fun SwipeScreen() {
 
     var items by remember { mutableStateOf(SwipeConst.initialItems) }
-
-    Column {
-        Swiper(
-            items = items,
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            SwiperTopAppBar(
+                modifier = Modifier.statusBarsPadding()
+            )
+        },
+        bottomBar = {
+            Controller(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .navigationBarsPadding(),
+                onResetClick = { items = SwipeConst.newItems }
+            )
+        }
+    ) { innerPaddings ->
+        var text by remember(items) { mutableStateOf("0") }
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Gray)
-                .weight(1f)
-                .semantics { contentDescription = "swiper" },
-            onSwiped = {
-                Log.i("Swiper", "end item : $it")
-            }
-        ) { item ->
-            SwipeItem(item)
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+                .padding(innerPaddings),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextButton(onClick = { items = SwipeConst.newItems }) {
-                Text(text = "New Items")
+            val swiperState = rememberSwiperState()
+            Swiper(
+                count = items.size,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(500.dp)
+                    .padding(horizontal = 24.dp)
+                    .semantics { contentDescription = "swiper" },
+                state = swiperState,
+                onSwiped = {
+                    text = swiperState.currentIndex.toString()
+                    Log.i("Swiper", "swipe done, current index : ${swiperState.currentIndex}")
+                }
+            ) { index ->
+                SwipeCard(items[index])
             }
+
+            Spacer(modifier = Modifier.heightIn(min = 24.dp))
+            Text(text = "totalCount ${items.size}")
+            Spacer(modifier = Modifier.heightIn(min = 8.dp))
+            Text(text = "current Index $text")
         }
     }
 }
 
 @Composable
-fun SwipeItem(item: SwipeItem) {
-    Card(
-        modifier = Modifier.padding(start = 30.dp, top = 80.dp, end = 30.dp, bottom = 80.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = 4.dp
+private fun Controller(
+    onResetClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp),
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = rememberImagePainter(item.imageUrl),
-            contentDescription = "",
-            contentScale = ContentScale.Crop
+        ControllerButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .height(56.dp),
+            text = "reset",
+            onClick = onResetClick,
+        )
+        ControllerButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .height(56.dp),
+            text = "reset",
+            onClick = {},
+        )
+        ControllerButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .height(56.dp),
+            text = "reset",
+            onClick = {},
         )
     }
 }
 
-object SwipeConst {
-    val initialItems = listOf(
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2022/01/12/07/57/bear-6932230_1280.jpg"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2021/12/23/03/05/iran-6888574__340.jpg"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2019/03/23/08/21/lioness-4074897__480.jpg"),
-        SwipeItem("https://cdn.pixabay.com/photo/2021/09/12/18/07/robin-6619184__480.jpg")
-    )
+@Composable
+private fun RowScope.ControllerButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        modifier = modifier
+            .fillMaxWidth()
+            .weight(1f)
+            .height(56.dp),
+        onClick = onClick
+    ) {
+        Text(text = text, style = MaterialTheme.typography.subtitle1)
+    }
+}
 
-    val newItems = listOf(
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2021/10/18/19/04/mountains-6721870_1280.jpg"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2021/11/21/14/17/desert-6814275_1280.png"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2022/01/13/07/05/house-6934535_1280.jpg"),
-        SwipeItem("https://cdn.pixabay.com/photo/2020/02/11/12/05/livigno-4839351_1280.jpg")
+@Composable
+private fun SwiperTopAppBar(
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        modifier = modifier.fillMaxWidth(),
+        title = { Text(stringResource(id = R.string.app_name)) },
+        backgroundColor = MaterialTheme.colors.background,
+        elevation = 0.dp
     )
+}
+
+@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES, name = "topAppbar-dark")
+@Composable
+private fun TopAppBarPreview() {
+    MaterialTheme {
+        SwiperTopAppBar()
+    }
+}
+
+@Composable
+private fun SwipeCard(
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = color, shape = RoundedCornerShape(12.dp))
+    )
+}
+
+@Preview(widthDp = 80, heightDp = 160)
+@Composable
+private fun SwipeItemPreview() {
+    Surface {
+        SwipeCard(Color.Red)
+    }
 }

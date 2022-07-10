@@ -28,6 +28,7 @@ android {
         }
         create("benchmark") {
             initWith(getByName("release"))
+            isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -81,6 +82,8 @@ dependencies {
 
     implementation(libs.compose.material)
     implementation(libs.compose.material.iconsext)
+
+    implementation(libs.accompanist.system.ui)
 
     implementation(libs.androidx.profileinstaller)
 

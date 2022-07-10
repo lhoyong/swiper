@@ -15,6 +15,22 @@
  */
 package com.github.lhoyong.swiper.sample.ui.swipe
 
-data class SwipeItem(
-    val imageUrl: String
-)
+import androidx.compose.ui.graphics.Color
+
+object SwipeConst {
+    val initialItems = listOf(
+        Color.Red,
+        Color.Cyan,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow
+    )
+
+    val newItems = listOf(
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow
+    )
+}

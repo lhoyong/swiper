@@ -25,6 +25,7 @@ import androidx.compose.material.SwipeableDefaults.VelocityThreshold
 import androidx.compose.material.ThresholdConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,30 +45,51 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
 
-internal class SwipeState(
+@Composable
+fun rememberSwiperState(
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
+): SwiperState {
+    val screenWidth = with(LocalConfiguration.current) {
+        LocalDensity.current.run { screenWidthDp.dp.toPx() }
+    }
+    return remember {
+        SwiperState(screenWidth, animationSpec)
+    }
+}
+
+@Stable
+class SwiperState(
     private val screenWidth: Float,
     private val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
 ) {
+
+    /**
+     * current index
+     */
+    var currentIndex: Int by mutableStateOf(0)
+
+    internal var totalCount: Int by mutableStateOf(0)
+
     /**
      * Whether the state is currently animating.
      */
-    var isAnimationRunning: Boolean by mutableStateOf(false)
+    internal var isAnimationRunning: Boolean by mutableStateOf(false)
         private set
 
-    var currentValue: Offset by mutableStateOf(Offset(0f, 0f))
+    internal var offset: Offset by mutableStateOf(Offset(0f, 0f))
 
-    var rotate: Float by mutableStateOf(0f)
+    internal var rotate: Float by mutableStateOf(0f)
 
-    var scale: Float by mutableStateOf(0f)
+    internal var scale: Float by mutableStateOf(0f)
 
-    val right = Offset(screenWidth, 0f)
-    val center = Offset(0f, 0f)
+    internal val right = Offset(screenWidth, 0f)
+    internal val center = Offset(0f, 0f)
 
-    var threshold: Float = 0.0f
+    internal var threshold: Float = 0.0f
 
-    var velocityThreshold by mutableStateOf(0f)
+    internal var velocityThreshold by mutableStateOf(0f)
 
-    var onAnimationEnd: () -> Unit = {}
+    internal var onAnimationEnd: () -> Unit = {}
 
     private suspend fun snapInternalTo(previous: Float, target: Float): Float {
         return Animatable(previous).apply {
@@ -92,29 +114,29 @@ internal class SwipeState(
         }
     }
 
-    suspend fun drag(dragAmount: Offset) {
+    internal suspend fun drag(dragAmount: Offset) {
         coroutineScope {
             launch {
                 val x = snapInternalTo(
-                    currentValue.x,
-                    currentValue.x + dragAmount.x
+                    offset.x,
+                    offset.x + dragAmount.x
                 )
                 val y = snapInternalTo(
-                    currentValue.y,
-                    currentValue.y + dragAmount.y
+                    offset.y,
+                    offset.y + dragAmount.y
                 )
-                currentValue = Offset(x, y)
+                offset = Offset(x, y)
             }
             launch {
                 val targetRotation = normalize(
                     center.x,
                     right.x,
-                    abs(currentValue.x),
+                    abs(offset.x),
                     0f,
                     10f
                 )
                 rotate =
-                    snapInternalTo(rotate, targetRotation * -currentValue.x.sign)
+                    snapInternalTo(rotate, targetRotation * -offset.x.sign)
             }
             launch {
                 scale = snapInternalTo(
@@ -122,7 +144,7 @@ internal class SwipeState(
                     normalize(
                         center.x,
                         right.x / 3,
-                        abs(currentValue.x),
+                        abs(offset.x),
                         0.8f
                     )
                 )
@@ -130,7 +152,7 @@ internal class SwipeState(
         }
     }
 
-    suspend fun runAnimation(direction: Direction) {
+    internal suspend fun runAnimation(direction: Direction) {
         when (direction) {
             Direction.Left -> swipeLeft()
             Direction.Right -> swipeRight()
@@ -144,8 +166,8 @@ internal class SwipeState(
             coroutineScope {
                 launch {
                     val distance = -screenWidth - (threshold / 2)
-                    animateInternalTo(currentValue.x, distance) {
-                        currentValue = Offset(it, currentValue.y)
+                    animateInternalTo(offset.x, distance) {
+                        offset = Offset(it, offset.y)
                     }
                 }
                 launch {
@@ -154,12 +176,14 @@ internal class SwipeState(
                     }
                 }
             }
+            currentIndex++
+            totalCount--
             onAnimationEnd()
             coroutineScope {
                 launch {
-                    val x = snapInternalTo(currentValue.x, 0f)
-                    val y = snapInternalTo(currentValue.y, 0f)
-                    currentValue = Offset(x, y)
+                    val x = snapInternalTo(offset.x, 0f)
+                    val y = snapInternalTo(offset.y, 0f)
+                    offset = Offset(x, y)
                 }
                 launch { rotate = snapInternalTo(rotate, 0f) }
             }
@@ -174,8 +198,8 @@ internal class SwipeState(
             coroutineScope {
                 launch {
                     val distance = screenWidth + (threshold / 2)
-                    animateInternalTo(currentValue.x, distance) {
-                        currentValue = Offset(it, currentValue.y)
+                    animateInternalTo(offset.x, distance) {
+                        offset = Offset(it, offset.y)
                     }
                 }
                 launch {
@@ -184,12 +208,14 @@ internal class SwipeState(
                     }
                 }
             }
+            currentIndex++
+            totalCount--
             onAnimationEnd()
             coroutineScope {
                 launch {
-                    val x = snapInternalTo(currentValue.x, center.x)
-                    val y = snapInternalTo(currentValue.y, 0f)
-                    currentValue = Offset(x, y)
+                    val x = snapInternalTo(offset.x, center.x)
+                    val y = snapInternalTo(offset.y, 0f)
+                    offset = Offset(x, y)
                 }
                 launch { rotate = snapInternalTo(rotate, 0f) }
             }
@@ -203,13 +229,13 @@ internal class SwipeState(
         try {
             coroutineScope {
                 launch {
-                    animateInternalTo(currentValue.x, center.x) {
-                        currentValue = currentValue.copy(x = it)
+                    animateInternalTo(offset.x, center.x) {
+                        offset = offset.copy(x = it)
                     }
                 }
                 launch {
-                    animateInternalTo(currentValue.y, center.y) {
-                        currentValue = currentValue.copy(y = it)
+                    animateInternalTo(offset.y, center.y) {
+                        offset = offset.copy(y = it)
                     }
                 }
                 launch {
@@ -234,21 +260,9 @@ internal enum class Direction {
     Left, Right, Center
 }
 
-@Composable
-internal fun rememberSwipeState(
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
-): SwipeState {
-    val screenWidth = with(LocalConfiguration.current) {
-        LocalDensity.current.run { screenWidthDp.dp.toPx() }
-    }
-    return remember {
-        SwipeState(screenWidth, animationSpec)
-    }
-}
-
 @ExperimentalMaterialApi
 internal fun Modifier.swipe(
-    state: SwipeState,
+    state: SwiperState,
     thresholdConfig: (Float, Float) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.3f) },
     velocityThreshold: Dp = VelocityThreshold
 ): Modifier = composed {
@@ -267,11 +281,11 @@ internal fun Modifier.swipe(
 
     drag(
         onEnd = { velocity ->
-            if (state.currentValue.x <= 0f) {
+            if (state.offset.x <= 0f) {
                 if (velocity.x <= -state.velocityThreshold) {
                     state.runAnimation(Direction.Left)
                 } else {
-                    if (state.currentValue.x > -state.threshold) {
+                    if (state.offset.x > -state.threshold) {
                         state.runAnimation(Direction.Center)
                     } else {
                         state.runAnimation(Direction.Left)
@@ -281,7 +295,7 @@ internal fun Modifier.swipe(
                 if (velocity.x >= state.velocityThreshold) {
                     state.runAnimation(Direction.Right)
                 } else {
-                    if (state.currentValue.x < state.threshold) {
+                    if (state.offset.x < state.threshold) {
                         state.runAnimation(Direction.Center)
                     } else {
                         state.runAnimation(Direction.Right)
@@ -331,4 +345,9 @@ internal fun normalize(
     }
     val value = v.coerceIn(min, max)
     return (value - min) / (max - min) * (endRange - startRange) + startRange
+}
+
+internal object SwiperDefault {
+
+    const val DefaultFraction = 0.3f
 }
