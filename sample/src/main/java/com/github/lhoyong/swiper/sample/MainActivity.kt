@@ -18,14 +18,14 @@ package com.github.lhoyong.swiper.sample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.github.lhoyong.swiper.sample.ui.swipe.SwipeScreen
 import com.github.lhoyong.swiper.sample.ui.theme.SwiperTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class MainActivity : ComponentActivity() {
 
@@ -36,12 +36,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SwiperTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    SwipeScreen()
+                val systemUiController = rememberSystemUiController()
+                val useDarkIcons = MaterialTheme.colors.isLight
+
+                SideEffect {
+                    // Update all of the system bar colors to be transparent, and use
+                    // dark icons if we're in light theme
+                    systemUiController.setSystemBarsColor(
+                        color = Color.Transparent,
+                        darkIcons = useDarkIcons
+                    )
+
+                    // setStatusBarsColor() and setNavigationBarColor() also exist
                 }
+                SwipeScreen()
             }
         }
     }

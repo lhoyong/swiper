@@ -15,18 +15,22 @@
  */
 package com.github.lhoyong.swiper.sample.ui.swipe
 
+import androidx.compose.ui.graphics.Color
+
 object SwipeConst {
     val initialItems = listOf(
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2022/01/12/07/57/bear-6932230_1280.jpg"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2021/12/23/03/05/iran-6888574__340.jpg"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2019/03/23/08/21/lioness-4074897__480.jpg"),
-        SwipeItem("https://cdn.pixabay.com/photo/2021/09/12/18/07/robin-6619184__480.jpg")
+        Color.Red,
+        Color.Cyan,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow
     )
 
     val newItems = listOf(
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2021/10/18/19/04/mountains-6721870_1280.jpg"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2021/11/21/14/17/desert-6814275_1280.png"),
-        SwipeItem(imageUrl = "https://cdn.pixabay.com/photo/2022/01/13/07/05/house-6934535_1280.jpg"),
-        SwipeItem("https://cdn.pixabay.com/photo/2020/02/11/12/05/livigno-4839351_1280.jpg")
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow
     )
 }
