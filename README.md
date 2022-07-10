@@ -26,25 +26,28 @@ allprojects {
 Second Add dependency
 ~~~gradle
 dependencies {
-    implementation 'io.github.lhoyong:swiper:1.0.1'
+    implementation 'io.github.lhoyong:swiper:1.0.3'
 }
 ~~~
 
 ## Basic Example
+
 Swipe next items simply using a composable function. 
+
 ~~~kt
 Swiper(
-        items = items,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray),
-        onSwiped = { /* TODO */ }, // swipe end callback
-     ) { item ->
-        // composable swipe item
-        SwipeItem(item)
-    }  
+    modifier = modifier,
+    count = 3,
+    state = rememberSwiperState(),
+    onSwiped = { }
+) {
+    Box(modifier = Modifier)    
+}
 ~~~
-Go to a simple [Example.](https://github.com/lhoyong/swiper/blob/main/sample/src/main/java/com/github/lhoyong/swiper/sample/MainActivity.kt)
+
+
+
+Go to a simple [Example.](https://github.com/lhoyong/swiper/blob/main/sample/src/main/java/com/github/lhoyong/swiper/sample/ui/swipe/SwipeScreen.kt)
 
 ## License
 ```xml
